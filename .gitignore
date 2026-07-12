@@ -1,0 +1,5 @@
+# Installed packages can always be recreated with npm install.
+node_modules/
+
+# This file will later contain private database and security settings.
+.env
