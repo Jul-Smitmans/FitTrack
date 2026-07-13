@@ -1,5 +1,6 @@
 # Installed packages can always be recreated with npm install.
 node_modules/
 
-# This file will later contain private database and security settings.
+# A .env file is a plain text file used by developers to store sensitive data and configuration settings (environment variables)
+# separate from the main source code.This file will later contain private database and security settings.
 .env
