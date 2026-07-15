@@ -103,3 +103,7 @@ button:hover {
   background: none;
   text-decoration: underline;
 }
+/* Hides one SPA view while another view is displayed. */
+.hidden {
+  display: none;
+}

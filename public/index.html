@@ -8,7 +8,7 @@
   </head>
   <body>
   <main>
-  <section class="auth-card">
+  <section id="login-view" class="auth-card">
   <p class="brand">FitTrack</p>
 
   <h1>Welcome back</h1>
@@ -39,7 +39,57 @@
 
   <p class="switch-text">
     New to FitTrack?
-    <button class="text-button" type="button">Create an account</button>
+    <button id="show-register" class="text-button" type="button">
+      Create an account
+    </button>
+  </p>
+</section>
+
+<section id="register-view" class="auth-card hidden">
+  <p class="brand">FitTrack</p>
+
+  <h1>Create an account</h1>
+  <p class="subtitle">Start planning your workouts today.</p>
+
+  <form id="register-form">
+    <label for="register-name">Name</label>
+    <input
+      id="register-name"
+      name="name"
+      type="text"
+      placeholder="Your name"
+      required
+      minlength="2"
+    />
+
+    <label for="register-email">Email address</label>
+    <input
+      id="register-email"
+      name="email"
+      type="email"
+      placeholder="you@example.com"
+      required
+    />
+
+    <label for="register-password">Password</label>
+    <input
+      id="register-password"
+      name="password"
+      type="password"
+      placeholder="At least 8 characters"
+      required
+      minlength="8"
+    />
+
+    <button type="submit">Create account</button>
+    <p id="register-message"></p>
+  </form>
+
+  <p class="switch-text">
+    Already have an account?
+    <button id="show-login" class="text-button" type="button">
+      Log in
+    </button>
   </p>
 </section>
 </main>
