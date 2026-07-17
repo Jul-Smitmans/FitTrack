@@ -92,6 +92,60 @@
     </button>
   </p>
 </section>
+<section id="dashboard-view" class="dashboard hidden">
+  <header class="dashboard-header">
+    <p class="brand">FitTrack</p>
+    <button id="logout-button" class="text-button" type="button">Log out</button>
+  </header>
+
+  <h1 id="welcome-heading">Welcome back</h1>
+  <p id="today-date" class="subtitle"></p>
+
+  <section class="today-card">
+    <p class="section-label">TODAY'S WORKOUT</p>
+    <h2 id="today-workout-title">No workout planned</h2>
+    <p id="today-workout-description">
+      Create a workout to begin planning your week.
+    </p>
+    <button id="plan-workout-button" type="button">Plan a workout</button>
+  </section>
+</section>
+<section id="workout-form-view" class="auth-card hidden">
+  <p class="brand">FitTrack</p>
+  <h1>Plan a workout</h1>
+  <p class="subtitle">Choose what you want to do and when.</p>
+
+  <form id="workout-form">
+    <label for="workout-title">Workout name</label>
+    <input
+      id="workout-title"
+      name="title"
+      type="text"
+      placeholder="For example: Upper body"
+      required
+      maxlength="80"
+    />
+
+    <label for="workout-date">Scheduled date</label>
+    <input id="workout-date" name="scheduledDate" type="date" required />
+
+    <label for="workout-notes">Notes (optional)</label>
+    <textarea
+      id="workout-notes"
+      name="notes"
+      rows="4"
+      placeholder="For example: Push-ups, shoulder press, stretching"
+      maxlength="300"
+    ></textarea>
+
+    <button type="submit">Save workout</button>
+    <p id="workout-message"></p>
+  </form>
+
+  <button id="cancel-workout-button" class="text-button" type="button">
+    Cancel
+  </button>
+</section>
 </main>
 <script src="app.js"></script>
   </body>

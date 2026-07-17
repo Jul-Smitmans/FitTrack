@@ -1,3 +1,7 @@
+const Workout = require("./models/Workout");
+
+const jwt = require("jsonwebtoken");
+
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
@@ -7,6 +11,27 @@ const User = require("./models/User");
 
 const app = express();
 const PORT = 3000;
+function authenticateToken(request, response, next) {
+  const authorizationHeader = request.headers.authorization;
+  const token = authorizationHeader && authorizationHeader.split(" ")[1];
+
+  if (!token) {
+    return response.status(401).json({
+      message: "Please log in to access workouts.",
+    });
+  }
+
+  try {
+    // Verifies the token and gets the user ID stored inside it.
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    request.userId = decodedToken.userId;
+    next();
+  } catch (error) {
+    response.status(403).json({
+      message: "Your login session has expired. Please log in again.",
+    });
+  }
+}
 
 // Allows the backend to read JSON data sent by the frontend.
 app.use(express.json());
@@ -96,14 +121,22 @@ app.post("/api/login", async (request, response) => {
       });
     }
 
-    response.json({
-      message: `Hi, ${user.name}! Welcome back.`,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
+    // Creates a signed token that identifies this user for later requests.
+const token = jwt.sign(
+  { userId: user._id },
+  process.env.JWT_SECRET,
+  { expiresIn: "2h" }
+);
+
+response.json({
+  message: `Hi, ${user.name}! Welcome back.`,
+  token,
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+  },
+});
   } catch (error) {
     console.error("Login error:", error.message);
     response.status(500).json({
@@ -129,3 +162,46 @@ async function startServer() {
 }
 
 startServer();
+app.post("/api/workouts", authenticateToken, async (request, response) => {
+  const { title, scheduledDate, notes } = request.body;
+
+  if (!title || !scheduledDate) {
+    return response.status(400).json({
+      message: "Workout title and date are required.",
+    });
+  }
+
+  try {
+    const workout = await Workout.create({
+      user: request.userId,
+      title,
+      scheduledDate,
+      notes,
+    });
+
+    response.status(201).json({
+      message: "Workout created successfully.",
+      workout,
+    });
+  } catch (error) {
+    console.error("Workout creation error:", error.message);
+    response.status(500).json({
+      message: "Unable to create the workout. Please try again.",
+    });
+  }
+});
+app.get("/api/workouts", authenticateToken, async (request, response) => {
+  try {
+    // Finds only workouts belonging to the logged-in user.
+    const workouts = await Workout.find({
+      user: request.userId,
+    }).sort({ scheduledDate: 1 });
+
+    response.json({ workouts });
+  } catch (error) {
+    console.error("Workout loading error:", error.message);
+    response.status(500).json({
+      message: "Unable to load workouts. Please try again.",
+    });
+  }
+});
