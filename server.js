@@ -205,3 +205,36 @@ app.get("/api/workouts", authenticateToken, async (request, response) => {
     });
   }
 });
+app.patch(
+  "/api/workouts/:id/complete",
+  authenticateToken,
+  async (request, response) => {
+    try {
+      // Updates only a workout that belongs to the logged-in user.
+      const workout = await Workout.findOneAndUpdate(
+        {
+          _id: request.params.id,
+          user: request.userId,
+        },
+        { completed: true },
+        { new: true }
+      );
+
+      if (!workout) {
+        return response.status(404).json({
+          message: "Workout not found.",
+        });
+      }
+
+      response.json({
+        message: "Workout marked as complete.",
+        workout,
+      });
+    } catch (error) {
+      console.error("Workout completion error:", error.message);
+      response.status(500).json({
+        message: "Unable to update the workout. Please try again.",
+      });
+    }
+  }
+);

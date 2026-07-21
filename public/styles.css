@@ -143,3 +143,44 @@ button:hover {
 #today-workout-description {
   margin-bottom: 24px;
 }
+@media (max-width: 600px) {
+  main {
+    padding: 16px;
+    align-items: start;
+  }
+
+  .auth-card {
+    padding: 28px 20px;
+  }
+
+  .dashboard-header {
+    margin-bottom: 24px;
+  }
+
+  .dashboard h1 {
+    font-size: 2rem;
+  }
+
+  .today-card {
+    padding: 24px 20px;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .dashboard-header .text-button,
+  #cancel-workout-button {
+    width: auto;
+  }
+}
+
+.secondary-button {
+  margin-bottom: 12px;
+  background-color: #e7f3ea;
+  color: #166534;
+}
+
+.secondary-button:hover {
+  background-color: #cfe8d5;
+}

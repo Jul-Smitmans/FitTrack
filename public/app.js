@@ -1,3 +1,7 @@
+const completeWorkoutButton = document.querySelector(
+  "#complete-workout-button"
+);
+
 const todayWorkoutTitle = document.querySelector("#today-workout-title");
 const todayWorkoutDescription = document.querySelector(
   "#today-workout-description"
@@ -212,15 +216,60 @@ async function loadTodayWorkout() {
     });
 
     if (todaysWorkout) {
-      todayWorkoutTitle.textContent = todaysWorkout.title;
-      todayWorkoutDescription.textContent =
-        todaysWorkout.notes || "You have a workout planned for today.";
-    } else {
-      todayWorkoutTitle.textContent = "No workout planned";
-      todayWorkoutDescription.textContent =
-        "Create a workout to begin planning your week.";
-    }
+  todayWorkoutTitle.textContent = todaysWorkout.title;
+  todayWorkoutDescription.textContent =
+    todaysWorkout.notes || "You have a workout planned for today.";
+
+  if (todaysWorkout.completed) {
+    completeWorkoutButton.classList.add("hidden");
+    todayWorkoutDescription.textContent += " Completed.";
+  } else {
+    completeWorkoutButton.dataset.workoutId = todaysWorkout._id;
+    completeWorkoutButton.classList.remove("hidden");
+  }
+} else {
+  todayWorkoutTitle.textContent = "No workout planned";
+  todayWorkoutDescription.textContent =
+    "Create a workout to begin planning your week.";
+  completeWorkoutButton.classList.add("hidden");
+}
   } catch (error) {
     todayWorkoutTitle.textContent = "Unable to load today’s workout";
   }
 }
+
+completeWorkoutButton.addEventListener("click", async () => {
+  const token = sessionStorage.getItem("fittrackToken");
+  const workoutId = completeWorkoutButton.dataset.workoutId;
+
+  if (!token || !workoutId) {
+    return;
+  }
+
+  completeWorkoutButton.textContent = "Saving...";
+
+  try {
+    const response = await fetch(
+      `/api/workouts/${workoutId}/complete`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      todayWorkoutDescription.textContent = data.message;
+      return;
+    }
+
+    // Reloads the card so it shows the completed state.
+    loadTodayWorkout();
+  } catch (error) {
+    todayWorkoutDescription.textContent =
+      "Unable to update the workout. Please try again.";
+  }
+});
