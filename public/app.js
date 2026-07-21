@@ -1,3 +1,5 @@
+const workoutsList = document.querySelector("#workouts-list");
+
 const completeWorkoutButton = document.querySelector(
   "#complete-workout-button"
 );
@@ -88,6 +90,7 @@ sessionStorage.setItem("fittrackUser", JSON.stringify(data.user));
     loginView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
     loadTodayWorkout();
+    loadWorkouts();
   } catch (error) {
     loginMessage.textContent = "Something went wrong. Please try again.";
   }
@@ -268,8 +271,110 @@ completeWorkoutButton.addEventListener("click", async () => {
 
     // Reloads the card so it shows the completed state.
     loadTodayWorkout();
+    loadWorkouts();
   } catch (error) {
     todayWorkoutDescription.textContent =
       "Unable to update the workout. Please try again.";
   }
 });
+async function loadWorkouts() {
+  const token = sessionStorage.getItem("fittrackToken");
+
+  if (!token) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/workouts", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    workoutsList.innerHTML = "";
+
+    if (data.workouts.length === 0) {
+      workoutsList.textContent = "No workouts saved yet.";
+      return;
+    }
+
+    data.workouts.forEach((workout) => {
+      const workoutItem = document.createElement("article");
+      workoutItem.className = "workout-list-item";
+
+      const details = document.createElement("div");
+      const title = document.createElement("h3");
+      const date = document.createElement("p");
+      const status = document.createElement("p");
+
+      title.textContent = workout.title;
+
+      // Formats the database date into a readable date for the user.
+      date.textContent = new Date(workout.scheduledDate).toLocaleDateString(
+        "en-GB",
+        {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }
+      );
+
+      status.className = "workout-status";
+      status.textContent = workout.completed ? "Completed" : "Planned";
+
+      const actions = document.createElement("div");
+actions.className = "workout-actions";
+
+const deleteButton = document.createElement("button");
+deleteButton.type = "button";
+deleteButton.className = "delete-button";
+deleteButton.textContent = "Delete";
+
+deleteButton.addEventListener("click", () => {
+  deleteWorkout(workout._id);
+});
+
+actions.append(status, deleteButton);
+details.append(title, date);
+workoutItem.append(details, actions);
+workoutsList.append(workoutItem);
+    });
+  } catch (error) {
+    workoutsList.textContent = "Unable to load workouts.";
+  }
+}
+async function deleteWorkout(workoutId) {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this workout?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  const token = sessionStorage.getItem("fittrackToken");
+
+  try {
+    const response = await fetch(`/api/workouts/${workoutId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      window.alert(data.message);
+      return;
+    }
+
+    // Refreshes both dashboard areas after the deletion.
+    loadTodayWorkout();
+    loadWorkouts();
+  } catch (error) {
+    window.alert("Unable to delete the workout. Please try again.");
+  }
+}

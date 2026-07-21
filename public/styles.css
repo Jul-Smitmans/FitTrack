@@ -184,3 +184,67 @@ button:hover {
 .secondary-button:hover {
   background-color: #cfe8d5;
 }
+
+.workouts-card {
+  margin-top: 24px;
+  padding: 32px;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.08);
+}
+
+.workout-list-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.workout-list-item h3,
+.workout-list-item p {
+  margin: 0;
+}
+
+.workout-status {
+  color: #166534;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .workouts-card {
+    padding: 24px 20px;
+  }
+
+  .workout-list-item {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+#today-workout-description {
+  white-space: pre-line;
+}
+.workout-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delete-button {
+  width: auto;
+  padding: 8px 12px;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.delete-button:hover {
+  background-color: #fecaca;
+}
+
+@media (max-width: 600px) {
+  .workout-actions {
+    justify-content: space-between;
+  }
+}

@@ -238,3 +238,27 @@ app.patch(
     }
   }
 );
+app.delete("/api/workouts/:id", authenticateToken, async (request, response) => {
+  try {
+    // Deletes only a workout owned by the logged-in user.
+    const workout = await Workout.findOneAndDelete({
+      _id: request.params.id,
+      user: request.userId,
+    });
+
+    if (!workout) {
+      return response.status(404).json({
+        message: "Workout not found.",
+      });
+    }
+
+    response.json({
+      message: "Workout deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Workout deletion error:", error.message);
+    response.status(500).json({
+      message: "Unable to delete the workout. Please try again.",
+    });
+  }
+});
