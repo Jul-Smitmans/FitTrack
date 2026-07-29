@@ -66,12 +66,14 @@ label {
   font-weight: bold;
 }
 
-input {
+input,
+textarea {
   width: 100%;
   padding: 12px;
   font: inherit;
   border: 1px solid #d1d5db;
   border-radius: 8px;
+  resize: vertical;
 }
 
 button {

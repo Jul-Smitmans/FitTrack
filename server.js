@@ -90,7 +90,7 @@ app.post("/api/register", async (request, response) => {
   }
 });
 
-// Temporary login route. We will replace this with real login next.
+// Verifies the user's credentials and creates a login token.
 app.post("/api/login", async (request, response) => {
   const { email, password } = request.body;
 
@@ -122,21 +122,21 @@ app.post("/api/login", async (request, response) => {
     }
 
     // Creates a signed token that identifies this user for later requests.
-const token = jwt.sign(
-  { userId: user._id },
-  process.env.JWT_SECRET,
-  { expiresIn: "2h" }
-);
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
 
-response.json({
-  message: `Hi, ${user.name}! Welcome back.`,
-  token,
-  user: {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-  },
-});
+    response.json({
+      message: `Hi, ${user.name}! Welcome back.`,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.error("Login error:", error.message);
     response.status(500).json({
@@ -161,7 +161,7 @@ async function startServer() {
   }
 }
 
-startServer();
+
 app.post("/api/workouts", authenticateToken, async (request, response) => {
   const { title, scheduledDate, notes } = request.body;
 
@@ -262,3 +262,4 @@ app.delete("/api/workouts/:id", authenticateToken, async (request, response) => 
     });
   }
 });
+startServer();

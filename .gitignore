@@ -4,3 +4,5 @@ node_modules/
 # A .env file is a plain text file used by developers to store sensitive data and configuration settings (environment variables)
 # separate from the main source code.This file will later contain private database and security settings.
 .env
+
+/output/pdf/FitTrack_Full_Stack_Web_Development_Course_Book.pdf

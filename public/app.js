@@ -46,7 +46,7 @@ showLoginButton.addEventListener("click", () => {
   loginView.classList.remove("hidden");
 });
 
-// Temporary login interaction. We will replace this with real login soon.
+// Logs in the user and opens the personalized dashboard.
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -191,6 +191,7 @@ dashboardView.classList.remove("hidden");
 
 // Refreshes the Today’s Workout card using the newly saved data.
 loadTodayWorkout();
+loadWorkouts();
   } catch (error) {
     workoutMessage.textContent = "Something went wrong. Please try again.";
   }
@@ -227,9 +228,10 @@ async function loadTodayWorkout() {
     completeWorkoutButton.classList.add("hidden");
     todayWorkoutDescription.textContent += " Completed.";
   } else {
-    completeWorkoutButton.dataset.workoutId = todaysWorkout._id;
-    completeWorkoutButton.classList.remove("hidden");
-  }
+  completeWorkoutButton.dataset.workoutId = todaysWorkout._id;
+  completeWorkoutButton.textContent = "Mark as complete";
+  completeWorkoutButton.classList.remove("hidden");
+}
 } else {
   todayWorkoutTitle.textContent = "No workout planned";
   todayWorkoutDescription.textContent =
