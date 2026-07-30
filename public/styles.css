@@ -250,3 +250,9 @@ button:hover {
     justify-content: space-between;
   }
 }
+
+/* Keeps link-style buttons readable when hovered. */
+.text-button:hover {
+  background-color: transparent;
+  color: #14532d;
+}
