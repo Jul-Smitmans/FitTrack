@@ -5,4 +5,7 @@ node_modules/
 # separate from the main source code.This file will later contain private database and security settings.
 .env
 
-/output/pdf/FitTrack_Full_Stack_Web_Development_Course_Book.pdf
+# Generated learning documents and temporary files
+output/
+tmp/
+
