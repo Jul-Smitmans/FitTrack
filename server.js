@@ -140,7 +140,34 @@ app.post("/api/login", async (request, response) => {
   } catch (error) {
     console.error("Login error:", error.message);
     response.status(500).json({
-      message: "Unable to log in. Please try again.",
+      message: "Unable to log in. Please try again.",pi
+    });
+  }
+});
+app.get("/api/session", authenticateToken, async (request, response) => {
+  try {
+    // Finds the user identified by the verified login token.
+    const user = await User.findById(request.userId).select("name email");
+
+    if (!user) {
+      return response.status(404).json({
+        message: "User account not found.",
+      });
+    }
+
+    // Returns only safe information needed by the dashboard.
+    response.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Session check error:", error.message);
+
+    response.status(500).json({
+      message: "Unable to restore the session.",
     });
   }
 });

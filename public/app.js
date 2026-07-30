@@ -34,6 +34,61 @@ const showLoginButton = document.querySelector("#show-login");
 
 const loginForm = document.querySelector("#login-form");
 const loginMessage = document.querySelector("#login-message");
+async function restoreSession() {
+  const token = sessionStorage.getItem("fittrackToken");
+
+  // Without a saved token, FitTrack keeps showing the login screen.
+  if (!token) {
+    return;
+  }
+
+  try {
+    // Asks the backend whether the saved token is still valid.
+    const response = await fetch("/api/session", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      sessionStorage.removeItem("fittrackToken");
+      sessionStorage.removeItem("fittrackUser");
+      return;
+    }
+
+    const data = await response.json();
+
+    // Saves the fresh, safe user information returned by the backend.
+    sessionStorage.setItem(
+      "fittrackUser",
+      JSON.stringify(data.user)
+    );
+
+    welcomeHeading.textContent =
+      `Hi, ${data.user.name}! Welcome back.`;
+
+    const currentDate = new Date();
+
+    todayDate.textContent = currentDate.toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+
+    // Restores the correct SPA view.
+    loginView.classList.add("hidden");
+    registerView.classList.add("hidden");
+    workoutFormView.classList.add("hidden");
+    dashboardView.classList.remove("hidden");
+
+    loadTodayWorkout();
+    loadWorkouts();
+  } catch (error) {
+    console.error("Unable to restore session:", error.message);
+    loginMessage.textContent =
+      "Unable to restore your session. Please log in again.";
+  }
+}
 // Shows the registration view and hides the login view.
 showRegisterButton.addEventListener("click", () => {
   loginView.classList.add("hidden");
@@ -380,3 +435,5 @@ async function deleteWorkout(workoutId) {
     window.alert("Unable to delete the workout. Please try again.");
   }
 }
+// Checks for an existing valid login whenever app.js loads.
+restoreSession();
