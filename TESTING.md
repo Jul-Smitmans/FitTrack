@@ -17,6 +17,7 @@ These tests verify the application’s main features, validation, security, and 
 
 ## Security checks
 
+
 - Passwords are stored as hashes rather than readable text.
 - Protected workout routes require a valid JWT.
 - Database queries restrict workouts to the authenticated user.
