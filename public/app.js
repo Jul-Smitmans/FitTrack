@@ -1,3 +1,20 @@
+const exerciseNameInput = document.querySelector("#exercise-name");
+const exerciseSetsInput = document.querySelector("#exercise-sets");
+const exerciseRepsInput = document.querySelector("#exercise-reps");
+const addExerciseButton = document.querySelector("#add-exercise-button");
+const exerciseMessage = document.querySelector("#exercise-message");
+const plannedExercisesList = document.querySelector(
+  "#planned-exercises-list"
+);
+const emptyExercisesMessage = document.querySelector(
+  "#empty-exercises-message"
+);
+
+// Temporarily holds exercises while the user builds the workout.
+let plannedExercises = [];
+
+const appContainer = document.querySelector("#app");
+
 const workoutsList = document.querySelector("#workouts-list");
 
 const completeWorkoutButton = document.querySelector(
@@ -80,6 +97,7 @@ async function restoreSession() {
     registerView.classList.add("hidden");
     workoutFormView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
+    
 
     loadTodayWorkout();
     loadWorkouts();
@@ -218,6 +236,12 @@ workoutForm.addEventListener("submit", async (event) => {
   const scheduledDate = workoutDateInput.value;
   const notes = document.querySelector("#workout-notes").value;
 
+  if (plannedExercises.length === 0) {
+    workoutMessage.textContent =
+      "Add at least one exercise before saving the workout.";
+    return;
+  }
+
   workoutMessage.textContent = "Saving workout...";
 
   try {
@@ -229,7 +253,12 @@ workoutForm.addEventListener("submit", async (event) => {
         // Sends the login token so the backend knows who owns this workout.
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, scheduledDate, notes }),
+      body: JSON.stringify({
+        title,
+        scheduledDate,
+        notes,
+        exercises: plannedExercises,
+      }),
     });
 
     const data = await response.json();
@@ -240,6 +269,11 @@ workoutForm.addEventListener("submit", async (event) => {
     }
 
     workoutForm.reset();
+
+    // Clears the temporary exercise state after the workout is saved.
+    plannedExercises = [];
+    renderPlannedExercises();
+    exerciseMessage.textContent = "";
 
 workoutFormView.classList.add("hidden");
 dashboardView.classList.remove("hidden");
@@ -269,30 +303,57 @@ async function loadTodayWorkout() {
 
     const today = new Date().toISOString().split("T")[0];
 
-    // Finds the first saved workout whose scheduled date is today.
-    const todaysWorkout = data.workouts.find((workout) => {
-      return workout.scheduledDate.split("T")[0] === today;
-    });
+    // Finds every workout for today, then selects the newest one.
+    const todaysWorkout = data.workouts
+      .filter((workout) => {
+        return workout.scheduledDate.split("T")[0] === today;
+      })
+      .sort((firstWorkout, secondWorkout) => {
+        return (
+          new Date(secondWorkout.createdAt) -
+          new Date(firstWorkout.createdAt)
+        );
+      })[0];
 
     if (todaysWorkout) {
-  todayWorkoutTitle.textContent = todaysWorkout.title;
-  todayWorkoutDescription.textContent =
-    todaysWorkout.notes || "You have a workout planned for today.";
+      todayWorkoutTitle.textContent = todaysWorkout.title;
 
-  if (todaysWorkout.completed) {
-    completeWorkoutButton.classList.add("hidden");
-    todayWorkoutDescription.textContent += " Completed.";
-  } else {
-  completeWorkoutButton.dataset.workoutId = todaysWorkout._id;
-  completeWorkoutButton.textContent = "Mark as complete";
-  completeWorkoutButton.classList.remove("hidden");
-}
-} else {
-  todayWorkoutTitle.textContent = "No workout planned";
-  todayWorkoutDescription.textContent =
-    "Create a workout to begin planning your week.";
-  completeWorkoutButton.classList.add("hidden");
-}
+      // Converts every structured exercise into one readable line.
+      const exerciseLines = (todaysWorkout.exercises || [])
+        .map((exercise) => {
+          return `${exercise.name} — ${exercise.sets} sets × ${exercise.reps} reps`;
+        })
+        .join("\n");
+
+      const workoutDetails = [];
+
+      if (todaysWorkout.notes) {
+        workoutDetails.push(todaysWorkout.notes);
+      }
+
+      if (exerciseLines) {
+        workoutDetails.push(exerciseLines);
+      } else {
+        // Keeps older workouts without an exercises array readable.
+        workoutDetails.push("No structured exercises saved.");
+      }
+
+      if (todaysWorkout.completed) {
+        workoutDetails.push("Status: Completed");
+        completeWorkoutButton.classList.add("hidden");
+      } else {
+        completeWorkoutButton.dataset.workoutId = todaysWorkout._id;
+        completeWorkoutButton.textContent = "Mark as complete";
+        completeWorkoutButton.classList.remove("hidden");
+      }
+
+      todayWorkoutDescription.textContent = workoutDetails.join("\n");
+    } else {
+      todayWorkoutTitle.textContent = "No workout planned";
+      todayWorkoutDescription.textContent =
+        "Create a workout to begin planning your week.";
+      completeWorkoutButton.classList.add("hidden");
+    }
   } catch (error) {
     todayWorkoutTitle.textContent = "Unable to load today’s workout";
   }
@@ -365,6 +426,8 @@ async function loadWorkouts() {
       const title = document.createElement("h3");
       const date = document.createElement("p");
       const status = document.createElement("p");
+      const exerciseList = document.createElement("ul");
+      exerciseList.className = "saved-exercise-list";
 
       title.textContent = workout.title;
 
@@ -377,6 +440,22 @@ async function loadWorkouts() {
           year: "numeric",
         }
       );
+      const savedExercises = workout.exercises || [];
+
+if (savedExercises.length === 0) {
+  const exerciseItem = document.createElement("li");
+  exerciseItem.textContent = "No structured exercises saved.";
+  exerciseList.append(exerciseItem);
+} else {
+  savedExercises.forEach((exercise) => {
+    const exerciseItem = document.createElement("li");
+
+    exerciseItem.textContent =
+      `${exercise.name} — ${exercise.sets} sets × ${exercise.reps} reps`;
+
+    exerciseList.append(exerciseItem);
+  });
+}
 
       status.className = "workout-status";
       status.textContent = workout.completed ? "Completed" : "Planned";
@@ -394,7 +473,7 @@ deleteButton.addEventListener("click", () => {
 });
 
 actions.append(status, deleteButton);
-details.append(title, date);
+details.append(title, date, exerciseList);
 workoutItem.append(details, actions);
 workoutsList.append(workoutItem);
     });
@@ -437,3 +516,75 @@ async function deleteWorkout(workoutId) {
 }
 // Checks for an existing valid login whenever app.js loads.
 restoreSession();
+
+function renderPlannedExercises() {
+  plannedExercisesList.innerHTML = "";
+
+  if (plannedExercises.length === 0) {
+    emptyExercisesMessage.classList.remove("hidden");
+    return;
+  }
+
+  emptyExercisesMessage.classList.add("hidden");
+
+  plannedExercises.forEach((exercise, index) => {
+    const listItem = document.createElement("li");
+    listItem.className = "planned-exercise-item";
+
+    const description = document.createElement("p");
+    description.textContent =
+      `${exercise.name} — ${exercise.sets} sets × ${exercise.reps} reps`;
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove-exercise-button";
+    removeButton.textContent = "Remove";
+
+    removeButton.addEventListener("click", () => {
+      // Removes one exercise using its current array position.
+      plannedExercises.splice(index, 1);
+      renderPlannedExercises();
+    });
+
+    listItem.append(description, removeButton);
+    plannedExercisesList.append(listItem);
+  });
+}
+addExerciseButton.addEventListener("click", () => {
+  const name = exerciseNameInput.value.trim();
+  const sets = Number(exerciseSetsInput.value);
+  const reps = Number(exerciseRepsInput.value);
+
+  if (!name) {
+    exerciseMessage.textContent = "Enter an exercise name.";
+    return;
+  }
+
+  if (!Number.isInteger(sets) || sets < 1 || sets > 100) {
+    exerciseMessage.textContent =
+      "Sets must be a whole number between 1 and 100.";
+    return;
+  }
+
+  if (!Number.isInteger(reps) || reps < 1 || reps > 1000) {
+    exerciseMessage.textContent =
+      "Reps must be a whole number between 1 and 1000.";
+    return;
+  }
+
+  // Adds one structured exercise to the temporary workout array.
+  plannedExercises.push({
+    name,
+    sets,
+    reps,
+  });
+
+  renderPlannedExercises();
+
+  // Clears only the exercise inputs so another exercise can be added.
+  exerciseMessage.textContent = "";
+  exerciseNameInput.value = "";
+  exerciseSetsInput.value = "";
+  exerciseRepsInput.value = "";
+  exerciseNameInput.focus();
+});

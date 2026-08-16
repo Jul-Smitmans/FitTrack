@@ -190,13 +190,38 @@ async function startServer() {
 
 
 app.post("/api/workouts", authenticateToken, async (request, response) => {
-  const { title, scheduledDate, notes } = request.body;
+  const { title, scheduledDate, notes, exercises } = request.body;
 
   if (!title || !scheduledDate) {
     return response.status(400).json({
       message: "Workout title and date are required.",
     });
   }
+  if (!Array.isArray(exercises) || exercises.length === 0) {
+  return response.status(400).json({
+    message: "Add at least one exercise before saving.",
+  });
+}
+
+// Checks that every exercise contains valid structured information.
+const exercisesAreValid = exercises.every((exercise) => {
+  return (
+    typeof exercise.name === "string" &&
+    exercise.name.trim() &&
+    Number.isInteger(exercise.sets) &&
+    exercise.sets >= 1 &&
+    exercise.sets <= 100 &&
+    Number.isInteger(exercise.reps) &&
+    exercise.reps >= 1 &&
+    exercise.reps <= 1000
+  );
+});
+
+if (!exercisesAreValid) {
+  return response.status(400).json({
+    message: "One or more exercises contain invalid information.",
+  });
+}
 
   try {
     const workout = await Workout.create({
@@ -204,6 +229,7 @@ app.post("/api/workouts", authenticateToken, async (request, response) => {
       title,
       scheduledDate,
       notes,
+      exercises,
     });
 
     response.status(201).json({
