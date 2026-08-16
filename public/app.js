@@ -97,7 +97,7 @@ async function restoreSession() {
     registerView.classList.add("hidden");
     workoutFormView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
-    
+    appContainer.classList.remove("auth-background");
 
     loadTodayWorkout();
     loadWorkouts();
@@ -162,6 +162,7 @@ sessionStorage.setItem("fittrackUser", JSON.stringify(data.user));
     // SPA navigation: changes views without opening another HTML page.
     loginView.classList.add("hidden");
     dashboardView.classList.remove("hidden");
+    appContainer.classList.remove("auth-background");
     loadTodayWorkout();
     loadWorkouts();
   } catch (error) {
@@ -207,6 +208,7 @@ sessionStorage.removeItem("fittrackUser");
   // Shows the login screen again and hides the private dashboard.
   dashboardView.classList.add("hidden");
   loginView.classList.remove("hidden");
+  appContainer.classList.add("auth-background");
 });
 
 planWorkoutButton.addEventListener("click", () => {
