@@ -10,7 +10,10 @@ It allows users to create an account, log in securely, plan workouts, view the w
 - User login and logout
 - Personalized welcome message
 - JWT-protected workout routes
-- Create and view workouts
+- Create structured workouts with multiple exercises
+- Record sets and repetitions for each exercise
+- Add and remove exercises interactively before saving
+- View complete exercise details in Today's Workout and My Workouts
 - Automatic Today's Workout display
 - Mark workouts as completed
 - Delete workouts
@@ -45,3 +48,10 @@ public/           Frontend HTML, CSS and JavaScript
 server.js         Express server and API routes
 package.json      Project information and dependencies
 .gitignore        Files excluded from Git
+
+```
+## Dynamic interactions
+
+1. After login, the dashboard displays a personalized welcome message using the authenticated user's name.
+2. The dashboard checks the current date and automatically displays the workout scheduled for today.
+3. While planning a workout, the user can add or remove several structured exercises. JavaScript immediately displays each exercise with its sets and repetitions before the complete workout is saved.
