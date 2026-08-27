@@ -13,7 +13,10 @@ It allows users to create an account, log in securely, plan workouts, view the w
 - Create structured workouts with multiple exercises
 - Record sets and repetitions for each exercise
 - Add and remove exercises interactively before saving
+- Choose exercises from an expanded list that matches the selected workout category
 - View complete exercise details in Today's Workout and My Workouts
+- Filter My Workouts by title or exercise, planned/completed status, and date
+- View completed and planned workout totals with a decimal completion ratio (completed ÷ total)
 - Automatic Today's Workout display
 - Mark workouts as completed
 - Delete workouts

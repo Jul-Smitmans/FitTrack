@@ -13,7 +13,13 @@ These tests verify the application’s main features, validation, security, and 
 | T07 | Workout completion | Mark today’s workout as complete | Status changes to Completed and remains after refresh | Pass |
 | T08 | Delete cancellation | Click Delete and cancel the confirmation | Workout remains saved | Pass |
 | T09 | Workout deletion | Confirm deletion of a test workout | Workout disappears from the dashboard and database | Pass |
-| T10 | Responsive layout | Test login, dashboard, and form at mobile width | Content fits without horizontal scrolling | Pass |
+| T10 | Category exercise list | Select Upper Body, then open the exercise list | Only upper-body exercise suggestions are displayed | Pass |
+| T11 | Status filter | Select Completed in My Workouts | Only completed workouts are displayed | Pass |
+| T12 | Date filter | Choose a date that contains a saved workout | Only workouts scheduled for that date are displayed | Pass |
+| T13 | Workout search | Search for a workout title or exercise name | Matching workouts are displayed immediately | Pass |
+| T14 | Clear filters | Apply several filters, then select Clear filters | All saved workouts are displayed again | Pass |
+| T15 | Workout completion ratio | Load, complete, create, and delete workouts | Completed count, planned count, and decimal completion ratio (completed ÷ total) update correctly | Pass |
+| T16 | Responsive layout | Test login, dashboard, and form at mobile width | Content fits without horizontal scrolling | Pass |
 
 ## Security checks
 

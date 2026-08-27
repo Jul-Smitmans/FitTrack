@@ -120,6 +120,7 @@ label {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   padding: 13px 14px;
@@ -140,6 +141,7 @@ textarea {
 }
 
 input:focus,
+select:focus,
 textarea:focus {
   border-color: var(--green-700);
   box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.13);
@@ -275,6 +277,110 @@ button:focus-visible {
 
 .workouts-card > .subtitle {
   margin-bottom: 20px;
+}
+
+.workout-progress {
+  margin-bottom: 18px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--green-50), #ffffff);
+  border: 1px solid #b7dfc3;
+  border-radius: 14px;
+}
+
+.progress-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.progress-label {
+  margin-bottom: 2px;
+  color: var(--green-900);
+  font-weight: 800;
+}
+
+.progress-ratio {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.ratio-score {
+  color: var(--green-800);
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.workout-stat-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workout-stat {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-radius: 10px;
+}
+
+.workout-stat span {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.workout-stat strong {
+  font-size: 1.25rem;
+}
+
+.completed-stat {
+  color: var(--green-900);
+  background: var(--green-100);
+}
+
+.planned-stat {
+  color: #475467;
+  background: #eef2f0;
+}
+
+.workout-filters {
+  margin-bottom: 10px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: minmax(190px, 1.5fr) minmax(140px, 0.8fr) minmax(155px, 0.9fr) auto;
+  align-items: end;
+  gap: 12px;
+  background: var(--green-50);
+  border: 1px solid #b7dfc3;
+  border-radius: 14px;
+}
+
+.filter-field label {
+  margin: 0 0 7px;
+  display: block;
+}
+
+.workout-filters button {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.filter-summary {
+  min-height: 24px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.field-help {
+  margin: -5px 0 2px;
+  color: var(--muted);
+  font-size: 0.86rem;
 }
 
 .workout-list-item {
@@ -453,6 +559,15 @@ button:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .workout-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-search,
+  .workout-filters button {
+    grid-column: 1 / -1;
+  }
+
   .workout-list-item {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -488,5 +603,18 @@ button:focus-visible {
 
   .planned-exercise-item {
     flex-direction: column;
+  }
+
+  .workout-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .workout-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-search,
+  .workout-filters button {
+    grid-column: auto;
   }
 }

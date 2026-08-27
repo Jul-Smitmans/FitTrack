@@ -122,6 +122,58 @@
   <h2>My Workouts</h2>
   <p class="subtitle">Your planned and completed workouts.</p>
 
+  <section class="workout-progress" aria-labelledby="workout-progress-title">
+    <div class="progress-heading">
+      <div>
+        <p id="workout-progress-title" class="progress-label">Workout record</p>
+        <p class="progress-ratio">Completed workouts ÷ all workouts</p>
+      </div>
+      <strong id="workout-completion-ratio" class="ratio-score">0.00</strong>
+    </div>
+
+    <div class="workout-stat-grid">
+      <div class="workout-stat completed-stat">
+        <span>Completed</span>
+        <strong id="completed-workout-count">0</strong>
+      </div>
+      <div class="workout-stat planned-stat">
+        <span>Still planned (not done)</span>
+        <strong id="planned-workout-count">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="workout-filters" aria-label="Filter saved workouts">
+    <div class="filter-field filter-search">
+      <label for="workout-search">Search workouts</label>
+      <input
+        id="workout-search"
+        type="search"
+        placeholder="Search title or exercise"
+      />
+    </div>
+
+    <div class="filter-field">
+      <label for="workout-status-filter">Status</label>
+      <select id="workout-status-filter">
+        <option value="all">All statuses</option>
+        <option value="planned">Planned</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label for="workout-date-filter">Date</label>
+      <input id="workout-date-filter" type="date" />
+    </div>
+
+    <button id="clear-workout-filters" class="secondary-button" type="button">
+      Clear filters
+    </button>
+  </div>
+
+  <p id="workout-filter-summary" class="filter-summary"></p>
+
   <div id="workouts-list"></div>
 </section>
 </section>
@@ -131,24 +183,21 @@
   <p class="subtitle">Choose what you want to do and when.</p>
 
   <form id="workout-form">
-    <label for="workout-title">Workout name</label>
-    <input
+    <label for="workout-title">Workout category</label>
+    <select
       id="workout-title"
       name="title"
-      type="text"
-      list="workout-category-options"
-      placeholder="For example: Upper body"
       required
-      maxlength="80"
-    />
-    <datalist id="workout-category-options">
-  <option value="Upper Body"></option>
-  <option value="Lower Body"></option>
-  <option value="Full Body"></option>
-  <option value="Cardio"></option>
-  <option value="Core"></option>
-  <option value="Mobility"></option>
-</datalist>
+    >
+      <option value="">Choose a category</option>
+      <option value="Upper Body">Upper Body</option>
+      <option value="Lower Body">Lower Body</option>
+      <option value="Full Body">Full Body</option>
+      <option value="Cardio">Cardio</option>
+      <option value="Core">Core</option>
+      <option value="Mobility">Mobility</option>
+    </select>
+    <p class="field-help">The exercise list changes to match this category.</p>
 
     <label for="workout-date">Scheduled date</label>
     <input id="workout-date" name="scheduledDate" type="date" required />
@@ -156,24 +205,12 @@
   <legend>Add exercises</legend>
 
   <label for="exercise-name">Exercise</label>
-  <input
+  <select
     id="exercise-name"
-    type="text"
-    list="exercise-options"
-    placeholder="For example: Push-ups"
-    maxlength="80"
-  />
-
-  <datalist id="exercise-options">
-    <option value="Push-ups"></option>
-    <option value="Pull-ups"></option>
-    <option value="Dips"></option>
-    <option value="Squats"></option>
-    <option value="Lunges"></option>
-    <option value="Plank"></option>
-    <option value="Shoulder press"></option>
-    <option value="Bicep curls"></option>
-  </datalist>
+    disabled
+  >
+    <option value="">Choose a workout category first</option>
+  </select>
 
   <div class="exercise-numbers">
     <div>

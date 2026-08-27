@@ -1,6 +1,7 @@
 const exerciseNameInput = document.querySelector("#exercise-name");
 const exerciseSetsInput = document.querySelector("#exercise-sets");
 const exerciseRepsInput = document.querySelector("#exercise-reps");
+const workoutCategoryInput = document.querySelector("#workout-title");
 const addExerciseButton = document.querySelector("#add-exercise-button");
 const exerciseMessage = document.querySelector("#exercise-message");
 const plannedExercisesList = document.querySelector(
@@ -13,9 +14,110 @@ const emptyExercisesMessage = document.querySelector(
 // Temporarily holds exercises while the user builds the workout.
 let plannedExercises = [];
 
+// Each workout category has its own relevant exercise suggestions.
+// This prevents lower-body exercises from appearing in an Upper Body workout.
+const exercisesByCategory = {
+  "Upper Body": [
+    "Push-ups",
+    "Pull-ups",
+    "Dips",
+    "Bench press",
+    "Incline dumbbell press",
+    "Shoulder press",
+    "Lateral raises",
+    "Bent-over rows",
+    "Lat pulldowns",
+    "Face pulls",
+    "Bicep curls",
+    "Hammer curls",
+    "Tricep pushdowns",
+  ],
+  "Lower Body": [
+    "Squats",
+    "Goblet squats",
+    "Forward lunges",
+    "Reverse lunges",
+    "Romanian deadlifts",
+    "Deadlifts",
+    "Hip thrusts",
+    "Leg press",
+    "Leg extensions",
+    "Hamstring curls",
+    "Calf raises",
+    "Step-ups",
+  ],
+  "Full Body": [
+    "Burpees",
+    "Thrusters",
+    "Kettlebell swings",
+    "Deadlifts",
+    "Squat to press",
+    "Mountain climbers",
+    "Push-ups",
+    "Pull-ups",
+    "Walking lunges",
+    "Renegade rows",
+  ],
+  Cardio: [
+    "Jumping jacks",
+    "High knees",
+    "Burpees",
+    "Mountain climbers",
+    "Skater jumps",
+    "Jump squats",
+    "Butt kicks",
+    "Step-ups",
+    "Box jumps",
+    "Jump rope turns",
+  ],
+  Core: [
+    "Plank",
+    "Side plank",
+    "Crunches",
+    "Bicycle crunches",
+    "Russian twists",
+    "Leg raises",
+    "Dead bug",
+    "Bird dog",
+    "Mountain climbers",
+    "Hollow hold",
+  ],
+  Mobility: [
+    "Cat-cow stretch",
+    "Child's pose",
+    "Hip flexor stretch",
+    "Hamstring stretch",
+    "Thoracic rotations",
+    "Ankle circles",
+    "Shoulder pass-throughs",
+    "World's greatest stretch",
+    "Deep squat hold",
+    "Cobra stretch",
+  ],
+};
+
 const appContainer = document.querySelector("#app");
 
 const workoutsList = document.querySelector("#workouts-list");
+const workoutSearchInput = document.querySelector("#workout-search");
+const workoutStatusFilter = document.querySelector("#workout-status-filter");
+const workoutDateFilter = document.querySelector("#workout-date-filter");
+const clearWorkoutFiltersButton = document.querySelector(
+  "#clear-workout-filters"
+);
+const workoutFilterSummary = document.querySelector(
+  "#workout-filter-summary"
+);
+const completedWorkoutCount = document.querySelector(
+  "#completed-workout-count"
+);
+const plannedWorkoutCount = document.querySelector("#planned-workout-count");
+const workoutCompletionRatio = document.querySelector(
+  "#workout-completion-ratio"
+);
+
+// Stores the latest workouts returned by the backend so filtering is instant.
+let loadedWorkouts = [];
 
 const completeWorkoutButton = document.querySelector(
   "#complete-workout-button"
@@ -271,6 +373,7 @@ workoutForm.addEventListener("submit", async (event) => {
     }
 
     workoutForm.reset();
+    updateExerciseOptions();
 
     // Clears the temporary exercise state after the workout is saved.
     plannedExercises = [];
@@ -413,14 +516,58 @@ async function loadWorkouts() {
 
     const data = await response.json();
 
-    workoutsList.innerHTML = "";
+    loadedWorkouts = data.workouts;
+    updateWorkoutProgressSummary(loadedWorkouts);
+    renderFilteredWorkouts();
+  } catch (error) {
+    workoutsList.textContent = "Unable to load workouts.";
+  }
+}
 
-    if (data.workouts.length === 0) {
-      workoutsList.textContent = "No workouts saved yet.";
-      return;
-    }
+// Calculates completed workouts per saved workout, like goals per game.
+// Example: 6 completed out of 10 total workouts produces a ratio of 0.60.
+function updateWorkoutProgressSummary(workouts) {
+  const totalCount = workouts.length;
+  const completedCount = workouts.filter((workout) => workout.completed).length;
+  const plannedCount = totalCount - completedCount;
+  const completionRatio = totalCount ? completedCount / totalCount : 0;
 
-    data.workouts.forEach((workout) => {
+  completedWorkoutCount.textContent = completedCount;
+  plannedWorkoutCount.textContent = plannedCount;
+  workoutCompletionRatio.textContent = completionRatio.toFixed(2);
+}
+
+function renderFilteredWorkouts() {
+  const searchTerm = workoutSearchInput.value.trim().toLowerCase();
+  const selectedStatus = workoutStatusFilter.value;
+  const selectedDate = workoutDateFilter.value;
+
+  const filteredWorkouts = loadedWorkouts.filter((workout) =>
+    workoutMatchesFilters(
+      workout,
+      searchTerm,
+      selectedStatus,
+      selectedDate
+    )
+  );
+
+  workoutsList.innerHTML = "";
+
+  if (loadedWorkouts.length === 0) {
+    workoutFilterSummary.textContent = "";
+    workoutsList.textContent = "No workouts saved yet.";
+    return;
+  }
+
+  workoutFilterSummary.textContent =
+    `${filteredWorkouts.length} of ${loadedWorkouts.length} workouts shown`;
+
+  if (filteredWorkouts.length === 0) {
+    workoutsList.textContent = "No workouts match these filters.";
+    return;
+  }
+
+  filteredWorkouts.forEach((workout) => {
       const workoutItem = document.createElement("article");
       workoutItem.className = "workout-list-item";
 
@@ -477,12 +624,43 @@ deleteButton.addEventListener("click", () => {
 actions.append(status, deleteButton);
 details.append(title, date, exerciseList);
 workoutItem.append(details, actions);
-workoutsList.append(workoutItem);
-    });
-  } catch (error) {
-    workoutsList.textContent = "Unable to load workouts.";
-  }
+      workoutsList.append(workoutItem);
+  });
 }
+
+function workoutMatchesFilters(
+  workout,
+  searchTerm,
+  selectedStatus,
+  selectedDate
+) {
+  const exerciseNames = (workout.exercises || [])
+    .map((exercise) => exercise.name)
+    .join(" ");
+  const searchableText = `${workout.title} ${exerciseNames}`.toLowerCase();
+  const workoutStatus = workout.completed ? "completed" : "planned";
+  const workoutDate = workout.scheduledDate.split("T")[0];
+
+  const matchesSearch = !searchTerm || searchableText.includes(searchTerm);
+  const matchesStatus =
+    selectedStatus === "all" || workoutStatus === selectedStatus;
+  const matchesDate = !selectedDate || workoutDate === selectedDate;
+
+  return matchesSearch && matchesStatus && matchesDate;
+}
+
+// Re-renders the existing MongoDB results whenever a filter changes.
+workoutSearchInput.addEventListener("input", renderFilteredWorkouts);
+workoutStatusFilter.addEventListener("change", renderFilteredWorkouts);
+workoutDateFilter.addEventListener("change", renderFilteredWorkouts);
+
+clearWorkoutFiltersButton.addEventListener("click", () => {
+  workoutSearchInput.value = "";
+  workoutStatusFilter.value = "all";
+  workoutDateFilter.value = "";
+  renderFilteredWorkouts();
+});
+
 async function deleteWorkout(workoutId) {
   const confirmed = window.confirm(
     "Are you sure you want to delete this workout?"
@@ -552,6 +730,44 @@ function renderPlannedExercises() {
     plannedExercisesList.append(listItem);
   });
 }
+
+function updateExerciseOptions() {
+  const selectedCategory = workoutCategoryInput.value;
+  const categoryExercises = exercisesByCategory[selectedCategory] || [];
+
+  exerciseNameInput.innerHTML = "";
+
+  const promptOption = document.createElement("option");
+  promptOption.value = "";
+  promptOption.textContent = selectedCategory
+    ? `Choose an exercise for ${selectedCategory}`
+    : "Choose a workout category first";
+  exerciseNameInput.append(promptOption);
+
+  categoryExercises.forEach((exerciseName) => {
+    const option = document.createElement("option");
+    option.value = exerciseName;
+    option.textContent = exerciseName;
+    exerciseNameInput.append(option);
+  });
+
+  exerciseNameInput.disabled = categoryExercises.length === 0;
+}
+
+workoutCategoryInput.addEventListener("change", () => {
+  // Existing temporary exercises may not belong to the newly chosen category.
+  if (plannedExercises.length > 0) {
+    plannedExercises = [];
+    renderPlannedExercises();
+    exerciseMessage.textContent =
+      "The exercise list was cleared because the category changed.";
+  } else {
+    exerciseMessage.textContent = "";
+  }
+
+  updateExerciseOptions();
+});
+
 addExerciseButton.addEventListener("click", () => {
   const name = exerciseNameInput.value.trim();
   const sets = Number(exerciseSetsInput.value);
