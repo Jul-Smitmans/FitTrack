@@ -140,7 +140,7 @@ app.post("/api/login", async (request, response) => {
   } catch (error) {
     console.error("Login error:", error.message);
     response.status(500).json({
-      message: "Unable to log in. Please try again.",pi
+      message: "Unable to log in. Please try again.",
     });
   }
 });
