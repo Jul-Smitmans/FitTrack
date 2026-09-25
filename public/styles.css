@@ -300,12 +300,6 @@ button:focus-visible {
   font-weight: 800;
 }
 
-.progress-ratio {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
 .ratio-score {
   color: var(--green-800);
   font-size: 1.75rem;
